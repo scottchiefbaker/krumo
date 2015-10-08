@@ -5,6 +5,9 @@
 * @link http://sourceforge.net/projects/krumo
 */
 
+// Minify this by running the followning command:
+// curl -X POST -s --data-urlencode 'input@krumo.js' http://javascript-minifier.com/raw
+
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -105,8 +108,12 @@ krumo.get_id = function(str) {
 }
 
 // Get element by Class
-krumo.get_class = function(str) {
-	var elems = document.getElementsByClassName(str);
+krumo.get_class = function(str,elem) {
+	if (elem) {
+		var elems = elem.getElementsByClassName(str);
+	} else {
+		var elems = document.getElementsByClassName(str);
+	}
 	var ret = new Array();
 
 	// Just get the objects (not the extra stuff)
@@ -120,28 +127,87 @@ krumo.get_class = function(str) {
 	return ret;
 }
 
-// This is a poor mans querySelectorAll().
-// querySelectorAll() isn't supported 100% until
-// IE9, so we have to use this work around until
-// we can stop supporting IE8
-krumo.find = function(str) {
-	if (!str) { return false; }
+krumo.hasClass = function(elem,className) {
+	if (!elem) {
+		return false;
+	}
+
+	if (elem.classList) {
+		return elem.classList.contains(className);
+	} else {
+		return new RegExp('(^| )' + className + '( |$)', 'gi').test(elem.className);
+	}
+}
+
+krumo.closest = function(str,elem) {
+	if (!str) {
+		return false;
+	}
 
 	var first  = str.substr(0,1);
 	var remain = str.substr(1);
 
 	if (first === ".") {
-		return krumo.get_class(remain);
+		while (elem && !krumo.hasClass(elem,remain)) {
+			elem = elem.parentNode;
+		}
+
+		if (!elem) {
+			return false;
+		} else {
+			return elem;
+		}
 	} else if (first === "#") {
-		return krumo.get_id(remain);
+		while (elem && elem.getAttribute("id") !== remain) {
+			console.log(elem);
+			elem = elem.parentNode;
+		}
+
+		if (!elem) {
+			return false;
+		} else {
+			return elem;
+		}
+	// Something else we don't support yet
 	} else {
 		return false;
 	}
 }
 
-function toggle_expand_all() {
+// This is a poor mans querySelectorAll().
+// querySelectorAll() isn't supported 100% until
+// IE9, so we have to use this work around until
+// we can stop supporting IE8
+krumo.find = function(str,elem) {
+	if (!str) { return false; }
+
+	//console.log("Lookging for " + str,elem);
+
+	var first  = str.substr(0,1);
+	var remain = str.substr(1);
+
+	if (first === ".") {
+		return krumo.get_class(remain,elem);
+	} else if (first === "#") {
+		return krumo.get_id(remain,elem);
+	} else {
+		return false;
+	}
+}
+
+krumo.clique = function(event,el) {
+	if (event.shiftKey) {
+		krumo.toggle_expand_all(el);
+	} else {
+		krumo.toggle(el);
+	}
+}
+
+krumo.toggle_expand_all = function(elem) {
+	var root = krumo.closest(".krumo-root",elem);
+
 	// Find all the expandable items
-	var elems = krumo.find('.krumo-expand');
+	var elems = krumo.find('.krumo-expand',root);
 	if (elems.length === 0) { return false; }
 
 	// Find the first expandable element and see what state it is in currently
