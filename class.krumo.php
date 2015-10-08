@@ -509,7 +509,7 @@ class Krumo {
         print Krumo::_dump($data);
 
         if ($showVersion || $showCallInfo) {
-            print "\t\t<li class=\"krumo-footnote\" onDblClick=\"toggle_expand_all();\">\n";
+            print "\t\t<li class=\"krumo-footnote\" onDblClick=\"krumo.toggle_expand_all(this);\">\n";
 
             if ($showCallInfo && isset($d['file']) && $d['file']) {
                 print "<span class=\"krumo-call\" style=\"white-space:nowrap;\">";
@@ -749,6 +749,8 @@ class Krumo {
             print "<script type=\"text/javascript\">\n";
 
             $js_file = KRUMO_DIR . "/js/krumo.min.js";
+            //$js_file = KRUMO_DIR . "/js/krumo.js"; // For editting the JS
+
             if (is_readable($js_file)) {
                 $js_text = join(file($js_file));
             } else {
@@ -1155,7 +1157,7 @@ class Krumo {
 
         // If there is more than one, make a dropdown
         if (count($data) > 0) {
-            print "onClick=\"krumo.toggle(this);\"";
+            print "onClick=\"krumo.clique(event,this);\"";
         }
 
         print "onMouseOver=\"krumo.over(this);\" onMouseOut=\"krumo.out(this);\">";
@@ -1223,7 +1225,7 @@ class Krumo {
 
         print "<li class=\"krumo-child\"> <div class=\"krumo-element $elementClasses\"";
         if (count($data) > 0) {
-            print 'onClick="krumo.toggle(this);"';
+            print 'onClick="krumo.clique(event,this);"';
         }
         print 'onMouseOver="krumo.over(this);" onMouseOut="krumo.out(this);">';
 
@@ -1464,7 +1466,7 @@ class Krumo {
         print "<li class=\"krumo-child\">";
         print "<div class=\"krumo-element $expand_class\" ";
         if ($_extra) {
-            print " onClick=\"krumo.toggle(this);\" ";
+            print " onClick=\"krumo.clique(event,this);\" ";
         }
         print "onMouseOver=\"krumo.over(this);\" onMouseOut=\"krumo.out(this);\">\n";
 
